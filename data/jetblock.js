@@ -1,7 +1,17 @@
-var createPlaceholder = function(elt) {
+var generateRandomString = function(stringLength) {
+  var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
+  var randomstring = '';
+  for (var i=0; i<stringLength; i++) {
+    var rnum = Math.floor(Math.random() * chars.length);
+    randomstring += chars.substring(rnum,rnum+1);
+  }
+  return randomstring;
+};
+
+var createPlaceholder = function(elt, instanceClassID) {
   // custom element to avoid conflict with potential existing CSS rules
   var placeholder = document.createElement("phdr");
-  placeholder.className = "jetblocked";
+  placeholder.classList.add('jetblocked');
 
   // copy information from the plugin object
   var embedComputedStyle = window.getComputedStyle(elt, null);
@@ -36,6 +46,7 @@ var createPlaceholder = function(elt) {
   
   // add a way to know that 
   elt.classList.add('jetblock-whitelist');
+  elt.classList.add(instanceClassID);
   placeholder.pluginSource = elt;
 
   placeholder.onmouseover = function() {
@@ -47,15 +58,17 @@ var createPlaceholder = function(elt) {
   };
 
   return placeholder;
-}
+};
+
+var instanceClassID = generateRandomString(8);
 
 var htmlMutation = function(e) {
-  var nodes = document.querySelectorAll('object:not(.jetblock-whitelist), embed:not(.jetblock-whitelist)');
+  var nodes = document.querySelectorAll('object:not(.'+instanceClassID+'), embed:not(.'+instanceClassID+')');
   if (nodes) {
     for(var i = 0, l = nodes.length; i < l; i++) {
       var current = nodes[i];
       // Generate a placeholder
-      var placeholder = createPlaceholder(current);
+      var placeholder = createPlaceholder(current, instanceClassID);
       current.parentNode.replaceChild(placeholder, current);
     };
   }
